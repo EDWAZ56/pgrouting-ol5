@@ -1,0 +1,7 @@
+1: Download het wegenregister via http://www.geopunt.be/catalogus/datasetfolder/088ca437-78f0-47c0-a851-23c04881d489
+2: Importeer het wegenregister naar postgis databank
+	Methode 1: Qgis: Database-->DB Manager --> Invoer: shp wegenregister
+			Opties: Bron SRID: 31370, Ruimtelijke index aanmaken aanvinken
+	Methode 2: Gdal command: ogr2ogr -f "PostgreSQL" -overwrite PG:"host=localhost active_schema=routing user=postgres dbname=postgres password=postgres" -nln "wegenregister2018" -a_srs "EPSG:31370" "pad naar wegenregister2018 file"
+	Methode 3: Postgis Shapefile and dbf loader plugin in Pgadmin
+
