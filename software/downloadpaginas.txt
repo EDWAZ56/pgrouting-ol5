@@ -1,0 +1,3 @@
+gdal: https://trac.osgeo.org/gdal/wiki/DownloadSource
+geoserver: http://geoserver.org/download/
+pgadmin: https://www.pgadmin.org/download/
