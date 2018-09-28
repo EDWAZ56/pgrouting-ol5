@@ -41,8 +41,8 @@ var map = new Map({
     ],
     view: new View({
         projection:'EPSG:31370',
-        center: [200000, 177000],
-        zoom: 8
+        center: [243000, 182000],
+        zoom: 12
     })
 
     
@@ -87,7 +87,7 @@ vector.setStyle(new Style({
     })
 }));
 
-map.addLayer(wmsLayer);
+//map.addLayer(wmsLayer);
 
 
 
@@ -131,7 +131,7 @@ function provinceselection() {
         console.log("change event")
         var bron=document.getElementById('source').value;
         var doel=document.getElementById('target').value;
-        var viewparams = 'source:' + source.getId().split('.')[1]+';target:' + doel;
+        var viewparams = 'source:' + bron+';target:' + doel;
         wmsLayer.getSource().updateParams({'viewparams':viewparams});
         });
     }
@@ -160,8 +160,10 @@ var overlay = new Overlay({
 map.addOverlay(overlay);
 
 
-function myFunction() {
-    map.on('click', function(e) {
+
+//bij het plaatsen van startpunt
+function myFunctionstart() {
+    map.on("click",function(e){
         overlay.setPosition();
         var coordinate = e.coordinate;
         console.log(coordinate);
@@ -171,15 +173,196 @@ function myFunction() {
         //var hdms = coordinate.toStringHDMS(proj.toLonLat(coords));
         overlay.getElement().innerHTML = coordinate;
         overlay.setPosition(coordinate);
-        position.addFeature(new Feature(new Point(coordinate)));    
-        //update wms layer
-        var viewparams = 'source:500;target:100';
-        wmsLayer.getSource().updateParams({'viewparams':viewparams});
-        })        
+        
+        //position.addFeature(new Feature(new Point(coordinate))); 
+        
+        //definieer beginpunt
+        //bron=getVertex(coordinate)
+        bron=1;
+        //verander startnode naar nieuw beginpunt
+        document.getElementById('source').value=bron;
+        //verwijder huidige wms laag bij plaatsen van startpunt
+        map.removeLayer(wmsLayer);
+        //update params
+        var bron=document.getElementById('source').value
+        var doel=document.getElementById('target').value;
+        viewparams = 'source:'+bron+';target:'+doel;
+         
+        console.log(viewparams);
+        //maak nieuwe wms laag
+        var wmsSource = new ImageWMS({
+        url: 'http://localhost:8080/geoserver/wms/cite'
+        ,crossOrigin:'anonymous'
+        ,params: {'LAYERS': 'cite:shortest_path',viewparams:viewparams},
+        ratio: 1,
+        serverType: 'geoserver'
+        });
+        var wmsLayer = new ImageLayer({
+            source: wmsSource
+        });
+        
+        //voeg wms laag toe aan kaart
+        map.addLayer(wmsLayer);
+        
+    })
     };
 
+function myFunctionstop() {  
+        map.on("click",function(e){
+        overlay.setPosition();
+        var coordinate = e.coordinate;
+        console.log(coordinate);
+        getVertex(coordinate);
+        var features = map.getFeaturesAtPixel(e.pixel);
+        //var coords = features[0].getGeometry().getCoordinates();
+        //var hdms = coordinate.toStringHDMS(proj.toLonLat(coords));
+        overlay.getElement().innerHTML = coordinate;
+        overlay.setPosition(coordinate);
+        //position.addFeature(new Feature(new Point(coordinate)));  
+        //definieer eindpunt
+        //doel=getVertex(coordinate)
+        doel=2;
+        //verander stopnode naar nieuw eindpunt
+        document.getElementById('target').value=doel;
+        //verwijder huidige wms laag
+        map.removeLayer(wmsLayer);
+        //update params
+        var bron=document.getElementById('source').value;
+        var doel=document.getElementById('target').value;
+        viewparams='source:'+bron+';target:'+doel;
+        console.log(viewparams);
+        //maak nieuwe wms laag op basis van startpunt en stoppunt
+        var wmsSource = new ImageWMS({
+        url: 'http://localhost:8080/geoserver/wms/cite'
+        ,crossOrigin:'anonymous'
+        ,params: {'LAYERS': 'cite:shortest_path',viewparams:viewparams},
+        ratio: 1,
+        serverType: 'geoserver'
+        });
+        var wmsLayer = new ImageLayer({
+            source: wmsSource
+        });
+        /*update wms layer
+        var bron=document.getElementById('source').value;
+        viewparams = 'source:1;target:'+doel;
+        wmsLayer.getSource().updateParams({'viewparams':viewparams});
+        })  */
+        //voeg laag toe aan kaart
+        map.addLayer(wmsLayer);  
+
+})        
+    };
+    
+
+/*function Functionstart(){
+    map.un("click",myFunctionstop(event))
+    map.on("click",myFunctionstart(event))
+}
+
+function Functionstop(){
+    map.un("click",myFunctionstart(event))
+    map.on("click",myFunctionstop(event))
+}*/
 
 
+
+
+ 
+        map.on("click",function(e){
+        var checked=$('#toggle-event').prop('checked');
+        //indien nieuw startpunt
+        if (checked == true){
+            overlay.setPosition();
+            var coordinate = e.coordinate;
+            console.log(coordinate);
+            getVertex(coordinate);
+            var features = map.getFeaturesAtPixel(e.pixel);
+            //var coords = features[0].getGeometry().getCoordinates();
+            //var hdms = coordinate.toStringHDMS(proj.toLonLat(coords));
+            overlay.getElement().innerHTML = coordinate;
+            overlay.setPosition(coordinate);
+            
+            //position.addFeature(new Feature(new Point(coordinate))); 
+            
+            //definieer beginpunt
+            //bron=getVertex(coordinate)
+            bron=1;
+            //verander startnode naar nieuw beginpunt
+            document.getElementById('source').value=bron;
+            //verwijder huidige wms laag bij plaatsen van startpunt
+            map.removeLayer(wmsLayer);
+            //update params
+            var bron=document.getElementById('source').value
+            var doel=document.getElementById('target').value;
+            viewparams = 'source:'+bron+';target:'+doel;
+             
+            console.log(viewparams);
+            //maak nieuwe wms laag
+            var wmsSource = new ImageWMS({
+            url: 'http://localhost:8080/geoserver/wms/cite'
+            ,crossOrigin:'anonymous'
+            ,params: {'LAYERS': 'cite:shortest_path',viewparams:viewparams},
+            ratio: 1,
+            serverType: 'geoserver'
+            });
+            var wmsLayer = new ImageLayer({
+                source: wmsSource
+            });
+            
+            //voeg wms laag toe aan kaart
+            map.addLayer(wmsLayer);
+        }
+        //indien nieuw eindpunt
+        else if (checked == false){
+        overlay.setPosition();
+        var coordinate = e.coordinate;
+        console.log(coordinate);
+        getVertex(coordinate);
+        var features = map.getFeaturesAtPixel(e.pixel);
+        //var coords = features[0].getGeometry().getCoordinates();
+        //var hdms = coordinate.toStringHDMS(proj.toLonLat(coords));
+        overlay.getElement().innerHTML = coordinate;
+        overlay.setPosition(coordinate);
+        //position.addFeature(new Feature(new Point(coordinate)));  
+        //definieer eindpunt
+        //doel=getVertex(coordinate)
+        doel=2;
+        //verander stopnode naar nieuw eindpunt
+        document.getElementById('target').value=doel;
+        //verwijder huidige wms laag
+        map.removeLayer(wmsLayer);
+        //update params
+        var bron=document.getElementById('source').value;
+        var doel=document.getElementById('target').value;
+        viewparams='source:'+bron+';target:'+doel;
+        console.log(viewparams);
+        //maak nieuwe wms laag op basis van startpunt en stoppunt
+        var wmsSource = new ImageWMS({
+        url: 'http://localhost:8080/geoserver/wms/cite'
+        ,crossOrigin:'anonymous'
+        ,params: {'LAYERS': 'cite:shortest_path',viewparams:viewparams},
+        ratio: 1,
+        serverType: 'geoserver'
+        });
+        var wmsLayer = new ImageLayer({
+            source: wmsSource
+        });
+        /*update wms layer
+        var bron=document.getElementById('source').value;
+        viewparams = 'source:1;target:'+doel;
+        wmsLayer.getSource().updateParams({'viewparams':viewparams});
+        })  */
+        //voeg laag toe aan kaart
+        map.addLayer(wmsLayer);  
+}
+});
+
+
+
+    
+//var checked=$('#toggle-event').prop('checked');
+
+//document.getElementById("toggle-event").addEventListener("change", startstop());
 
 
 
