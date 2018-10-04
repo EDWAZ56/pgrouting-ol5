@@ -1,5 +1,5 @@
-﻿--postgis version
- --works in postgis 2.3
+--postgis version
+--works in postgis 2.3
 SELECT PostGIS_Version();
 --pgr version
 SELECT pgr_version();
